@@ -96,7 +96,24 @@ Notes:
 Notes:
 
 ```{r Conditional Means}
+install.packages('dplyr')
+library(dplyr)
 
+age_groups <- group_by(pf, age)
+
+pf_fc_by_age <- summarise(age_groups,
+  friend_count_mean = mean(friend_count),
+  friend_count_median = median(friend_count),
+  n = n()
+)
+
+pf_fc_by_age <- arrange(pf_fc_by_age, age)
+
+head(pf_fc_by_age)
+
+library(ggplot2)
+ggplot(data = pf_fc_by_age, aes(age, friend_count_median))+
+  geom_line()
 ```
 
 Create your plot!
@@ -111,7 +128,36 @@ Create your plot!
 Notes:
 
 ```{r Overlaying Summaries with Raw Data}
-
+ggplot(aes(x = age, y = friend_count),data = pf)+
+  coord_trans(y = 'sqrt')+
+  xlim(13,90)+
+  geom_point(alpha = 1/20, 
+             position = position_jitter(h = 0),
+             color = 'orange')+
+  geom_line(stat = 'summary', fun.y = mean)+
+  geom_line(stat = 'summary', fun.y = quantile, fun.args = list(probs = 0.1),
+            linetype = 2, color = 'blue')+
+  geom_line(stat = 'summary', fun.y = quantile, fun.args = list(probs = 0.5),
+            color = 'blue')+
+  geom_line(stat = 'summary', fun.y = quantile, fun.args = list(probs = 0.9),
+            linetype = 2, color = 'red')
+  
+  
+  
+```
+```{r}
+ggplot(aes(x = age, y = friend_count),data = pf)+
+  coord_cartesian(xlim = c(13,90), ylim = c(0,1000))+
+  geom_point(alpha = 1/20, 
+             position = position_jitter(h = 0),
+             color = 'orange')+
+  geom_line(stat = 'summary', fun.y = mean)+
+  geom_line(stat = 'summary', fun.y = quantile, fun.args = list(probs = 0.1),
+            linetype = 2, color = 'blue')+
+  geom_line(stat = 'summary', fun.y = quantile, fun.args = list(probs = 0.5),
+            color = 'blue')+
+  geom_line(stat = 'summary', fun.y = quantile, fun.args = list(probs = 0.9),
+            linetype = 2, color = 'red')
 ```
 
 #### What are some of your observations of the plot?
@@ -130,7 +176,7 @@ Notes:
 Notes:
 
 ```{r Correlation}
-
+?cor.test
 ```
 
 Look up the documentation for the cor.test function.

@@ -44,3 +44,45 @@ ggplot(aes(x = price, y = volume),
        data = subset(diamonds, volume!=0 & volume <800))+
   geom_point(alpha = 1/20)+
   geom_smooth(method = 'lm', color = 'red')
+
+library(dplyr)
+
+diamond_clarity <- group_by(diamonds, clarity)
+diamondsByClarity <- summarise(diamond_clarity,
+                               mean_price = mean(price),
+                               median_price = median(price),
+                               min_price = min(price),
+                               max_price = max(price),
+                               n = n()
+                               )
+head(diamondsByClarity)
+diamondsByClarity <-arrange(diamondsByClarity, clarity)
+
+
+
+diamonds_by_clarity <- group_by(diamonds, clarity)
+diamonds_mp_by_clarity <- summarise(diamonds_by_clarity, mean_price = mean(price))
+
+diamonds_by_color <- group_by(diamonds, color)
+diamonds_mp_by_color <- summarise(diamonds_by_color, mean_price = mean(price))
+
+?barplot
+p1 <- ggplot(aes(x = clarity), data = diamonds_mp_by_clarity)+
+  geom_bar(aes(weight = mean_price))
+p2 <- ggplot(aes(x = color), data = diamonds_mp_by_color)+
+  geom_bar(aes(weight = mean_price))
+library(gridExtra)
+grid.arrange(p1, p2, ncol =1)
+?diamonds
+
+#color
+#diamond colour, from J (worst) to D (best)
+
+#clarity
+#a measurement of how clear the diamond is (I1 (worst), SI1, SI2, VS1, VS2, VVS1, VVS2, IF (best))
+
+diamonds_by_cut <- group_by(diamonds, cut)
+diamonds_mp_by_cut <- summarise(diamonds_by_cut, mean_price = mean(price))
+
+ggplot(aes(x = cut), data = diamonds_mp_by_cut)+
+  geom_bar(aes(weight = mean_price))

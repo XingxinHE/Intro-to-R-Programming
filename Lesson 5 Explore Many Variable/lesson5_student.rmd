@@ -182,6 +182,41 @@ ggplot(aes(x = 90 * round(tenure / 90), y = friendships_initiated / tenure),
             stat = "summary",
             fun.y = mean)
 
+***
+
+### Bias-Variance Tradeoff Revisited
+Notes:
+
+```{r Bias-Variance Tradeoff Revisited}
+
+ggplot(aes(x = tenure, y = friendships_initiated / tenure),
+       data = subset(pf, tenure >= 1)) +
+  geom_line(aes(color = year_joined.bucket),
+            stat = 'summary',
+            fun.y = mean)
+
+ggplot(aes(x = 7 * round(tenure / 7), y = friendships_initiated / tenure),
+       data = subset(pf, tenure > 0)) +
+  geom_line(aes(color = year_joined.bucket),
+            stat = "summary",
+            fun.y = mean)
+
+ggplot(aes(x = 30 * round(tenure / 30), y = friendships_initiated / tenure),
+       data = subset(pf, tenure > 0)) +
+  geom_line(aes(color = year_joined.bucket),
+            stat = "summary",
+            fun.y = mean)
+
+ggplot(aes(x = 90 * round(tenure / 90), y = friendships_initiated / tenure),
+       data = subset(pf, tenure > 0)) +
+  geom_line(aes(color = year_joined.bucket),
+            stat = "summary",
+            fun.y = mean)
+
+
+ggplot(aes(x = tenure, y = friendships_initiated / tenure),
+       data = subset(pf, tenure >= 1)) +
+  geom_smooth(aes(color = year_joined.bucket))
 ```
 
 ***
@@ -200,7 +235,17 @@ Notes:
 Notes:
 
 ```{r Histograms Revisited}
+getwd()
+yo <- read.csv('yogurt.csv')
+str(yo)
 
+#Change id from int to factor
+yo$id <- factor(yo$id)
+str(yo)
+
+library(ggplot2)
+ggplot(aes(x = price), data = yo)+
+  geom_histogram()
 ```
 
 ***
@@ -209,7 +254,18 @@ Notes:
 Notes:
 
 ```{r Number of Purchases}
+summary(yo)
 
+?unique
+unique(yo$price)
+length(unique(yo$price))
+table(yo$price)
+
+yo$all.purchases <- yo$strawberry + yo$blueberry + yo$pina.colada + yo$plain + yo$mixed.berry
+
+yo$all.purchases <- transform(yo, all.purchases = strawberry + blueberry + pina.colada + plain + mixed.berry)
+
+table(yo$all.purchases)
 ```
 
 ***
@@ -218,6 +274,8 @@ Notes:
 Notes:
 
 ```{r Prices over Time}
+ggplot(aes(x = time, y = price), data = yo)+
+  geom_point(alpha = 1/10, color = 'orange')
 
 ```
 
@@ -231,7 +289,16 @@ Notes:
 ### Looking at Samples of Households
 
 ```{r Looking at Sample of Households}
+?set.seed
+?levels
+set.seed(3333)
+sample.ids <- sample(levels(yo$id), 16)
 
+ggplot(aes(x = time, y = price),
+       data = subset(yo, id %in% sample.ids))+
+  facet_wrap( ~ id)+
+  geom_line()+
+  geom_point(aes(size = all.purchases), pch = 20)
 ```
 
 ***
@@ -247,6 +314,22 @@ Notes:
 ***
 
 ### Scatterplot Matrix
+```{r}
+install.packages('GGally')
+library(GGally)
+library(ggplot2)
+?ggpairs()
+?theme_set
+theme_set(theme_minimal(20))
+pf <- read.csv('pseudo_facebook.tsv', sep = '\t')
+
+#set the seed for reproducible result
+set.seed(1836)
+pf_subset <- subset(pf, select = -c(userid, year_joined, year_joined.bucket))
+names(pf_subset)
+ggpairs(pf_subset[sample.int(nrow(pf_subset), 1000),])
+```
+
 Notes:
 
 ***
@@ -261,10 +344,14 @@ Notes:
 
 ```{r}
 nci <- read.table("nci.tsv")
+names(nci)
 colnames(nci) <- c(1:64)
+names(nci)
+
 ```
 
 ```{r}
+library(reshape2)
 nci.long.samp <- melt(as.matrix(nci[1:200,]))
 names(nci.long.samp) <- c("gene", "case", "value")
 head(nci.long.samp)

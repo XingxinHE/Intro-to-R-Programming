@@ -1,0 +1,118 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+### Create a histogram of diamond prices.
+### Facet the histogram by diamond color and use cut to color the histogram bars.
+```{r}
+library(ggplot2)
+data(diamonds)
+names(diamonds)
+
+
+ggplot(aes(x = price, fill = cut), data = diamonds)+
+  geom_histogram()+
+  facet_wrap( ~ color, ncol = 3)
+```
+
+
+
+
+
+###Create a scatterplot of diamond price vs. table and color the points by the cut of the diamond.
+```{r}
+ggplot(aes(x = price, y = table), data = diamonds)+
+  geom_point(aes(color = cut))+
+  scale_y_continuous(breaks = seq(40, 95, 5))
+```
+
+#Ã»½â¾ö
+What is the typical table range for the majority of 
+diamonds of ideal 
+cut? 
+What is the typical table range for the majority of 
+diamonds of 
+remium 
+cut? 
+to 
+Use the graph that you created from the previous exercise to 
+see the answer. You do not need to run summaries. 
+
+
+
+```{r}
+summary(
+  diamonds$table)
+```
+
+
+
+
+
+
+### Create a scatterplot of diamond price vs. volume (x * y * z) and color the points by the clarity of diamonds. Use scale on the y-axis to take the log10 of price. You should also omit the top 1% of diamond volumes from the plot.
+```{r}
+diamonds$volume <- diamonds$x * diamonds$y * diamonds$z
+ggplot(aes(x = volume, y = price), data = diamonds)+
+  geom_point(aes(color = clarity))+
+  scale_y_log10()+
+  xlim(0, quantile(diamonds$volume, 0.99))
+```
+
+
+
+###Your task is to create a new variable called 'prop_initiated' in the Pseudo-Facebook data set. The variable should contain the proportion of friendships that the user initiated.
+```{r}
+pf <- read.csv('pseudo_facebook.tsv', sep = '\t')
+pf$prop_initiated <- pf$friendships_initiated / pf$friend_count
+
+```
+
+
+
+
+###Create a line graph of the median proportion of friendships initiated ('prop_initiated') vs. tenure and color the line segment by year_joined.bucket.
+```{r}
+pf$year_joined <- floor(2014 - pf$tenure/365)
+pf$year_joined.bucket <- cut(pf$year_joined, c(2004, 2009, 2011, 2012, 2014))
+ggplot(aes(x = tenure, y = prop_initiated), 
+       data = subset(pf, !is.na(year_joined.bucket)))+
+  geom_line(aes(color = year_joined.bucket), 
+            stat = 'summary',
+            fun.y = median)
+```
+
+
+
+
+###Smooth the last plot you created of prop_initiated vs tenure colored by year_joined.bucket. You can bin together ranges of tenure or add a smoother to the plot.
+```{r}
+ggplot(aes(x = tenure, y = prop_initiated),
+       data = subset(pf, !is.na(year_joined.bucket)))+
+  geom_smooth(aes(color = year_joined.bucket))
+```
+###On average, which group initiated the greatest proportion of its Facebook friendships? The plot with the smoother that you created in the last exercise can help you answer this question. 
+My answer: People who joined after 2012 
+
+
+###For the group with the largest proportion of friendships initiated, what is the group's average (mean) proportion of friendships initiated? 
+My answer: 0.6654
+```{r}
+with(subset(pf, year_joined > 2012), summary(prop_initiated))
+```
+
+###Why do you think this group's proportion of friendships initiated is higher than the others? 
+I think it is because they are in the era of Internet.
+
+
+
+
+
+###Create a scatter plot of the price/carat ratio of diamonds. The variable x should be assigned to cut. The points should be colored by diamond color, and the plot should be faceted by clarity.
+```{r}
+ggplot(aes(x = cut, y = price/carat), data = diamonds)+
+  geom_point(aes(color = color))+
+  facet_wrap( ~ clarity, ncol = 2)
+```
+
